@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="UTF-8">
+	<title>Peliculas</title>
+	<link rel="stylesheet" type="text/css" href="/css/estilos.css">
+</head>
+<body>
+	<nav class="navbar">
+        <ul class="navbar-nav">
+            <li class="nav-item"><a href="consultar-peliculas">HOME</a></li>
+            <li class="nav-item"><a href="alta-pelicula">ALTA PELICULA</a></li>
+            <li class="nav-item"><a href="buscar-peliculas">BUSCAR PELICULAS</a></li>
+        </ul>
+    </nav>
+    
+	<h1>Pelicula encontrada por código</h1>
+	<div class = "peliculas">
+		<div class="contenedor-imagen">
+		    <img th:src="@{/img/__${pelicula.img}__}" alt="Imagen de la Película">
+		    <div class="informacion-pelicula">
+		        <h2 th:text="${pelicula.titulo}"></h2>
+		        <p>Código: <span th:text="${pelicula.codigo}"></span></p>
+		        <p>Género: <span th:text="${pelicula.generos}"></span></p>
+		        <a th:href ="'https://' + ${pelicula.url}">Ver pelicula</a>
+		    </div>
+		</div>
+	</div>
+	
+	<form action ="/peliculas/modificar-pelicula" method = "get">
+		<input type="hidden" name="codigo" th:value="${pelicula.codigo}">
+		<button type="submit">Modificar pelicula</button>
+	</form>
+	
+	<form action ="/peliculas/eliminar-pelicula" method = "post">
+		<input type="hidden" name="codigo" th:value="${pelicula.codigo}">
+		<button type="submit">Eliminar pelicula</button>
+	</form>
+	
+
+</body>
+</html>
