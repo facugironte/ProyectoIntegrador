@@ -1,5 +1,6 @@
 package com.integrador.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.integrador.exception.DBException;
+import com.integrador.model.Genero;
 import com.integrador.model.Pelicula;
 import com.integrador.service.PeliculasService;
 
@@ -28,20 +30,32 @@ public class PeliculasController {
 		List<Pelicula> peliculas = peliculasService.getAll();
 		
 		model.addAttribute("peliculas", peliculas);
+		
 		return("home");
 	}
 	
 	@GetMapping("/alta-pelicula")
-	public String altaPeliculaView(){return "alta-pelicula";}
+	public String altaPeliculaView(Model model)throws DBException{
+		List<String> generos = peliculasService.getGeneros();
+		
+		model.addAttribute("generos", generos);
+		return "alta-pelicula";
+	}
 	
 	@GetMapping("/buscar-peliculas")
 	public String buscarPeliculaView() {return "buscar-peliculas";}
 	
 	
 	@PostMapping("/save-pelicula")
-	public String altaPelicula(@RequestParam String titulo, @RequestParam String url_sitio, @RequestParam String url_img, @RequestParam String generos) throws DBException{
+	public String altaPelicula(@RequestParam String titulo, @RequestParam String url_sitio, @RequestParam String url_img, @RequestParam String[] generos) throws DBException{
 		
-		Pelicula pelicula = new Pelicula(titulo, url_sitio, url_img, generos);
+		List<Genero> generosObj = new ArrayList<>();
+		
+		for(String g: generos) {
+			generosObj.add(peliculasService.getGeneroPorNombre(g));
+		}
+		
+		Pelicula pelicula = new Pelicula(titulo, url_sitio, url_img, generosObj);
 		
 		peliculasService.save(pelicula);
 		

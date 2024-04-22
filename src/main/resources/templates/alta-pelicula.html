@@ -27,8 +27,11 @@
 		<label for = "url_img">Imagen: </label>
 		<input type="text" id="url_img" name ="url_img"><br>
 		
-		<label for = "generos">Generos: </label>
-		<input type="text" id="generos" name ="generos"><br>
+		<select name="generos" id="generos" multiple>
+			<th:block th:each="genero: ${generos}">
+				<option th:value="${genero}" th:text="${genero}"></option>
+			</th:block>
+		</select>
 		
 		<button type="submit">Guardar pelicula</button>
 	</form>

@@ -12,6 +12,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 
 import com.integrador.exception.DBException;
+import com.integrador.model.Genero;
 import com.integrador.model.Pelicula;
 import com.integrador.repository.PeliculasRepository;
 
@@ -56,7 +57,16 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 			rset = stm.executeQuery(query);
 			
 			while(rset.next()) {
-				peliculas.add(new Pelicula(rset.getInt(1), rset.getString(2), rset.getString(3), rset.getString(4), rset.getString(5)));
+				
+				List<Genero> generos = new ArrayList<Genero>();
+				
+				String[] generosIDs = rset.getString(5).split(", ");
+				
+				for(String gid: generosIDs) {
+					generos.add(getGeneroPorNombre(gid));
+				}
+				
+				peliculas.add(new Pelicula(rset.getInt(1), rset.getString(2), rset.getString(3), rset.getString(4), generos));
 			}
 		} catch (SQLException ex) {
 			throw new DBException(DBException.ERROR_3, "No fue posible descargar las peliculas. Error: " + ex.getMessage(), ex);
@@ -65,6 +75,63 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 		cerrarConexion();
 		
 		return peliculas;
+	}
+
+	public Genero getGeneroPorNombre(String nombre) throws DBException {
+		conectar();
+		
+		Genero genero = null;
+		
+		String query = "SELECT id_genero, genero FROM generos WHERE genero = ?";
+		
+		
+		PreparedStatement stm = null;
+		ResultSet rset = null;
+		
+		try {
+			stm = conn.prepareStatement(query);
+			stm.setString(1, nombre);
+			rset = stm.executeQuery();
+			
+			if(rset.next()) {
+				genero = new Genero(rset.getInt(1), rset.getString(2));
+			} else {
+				System.out.println("No fue posible obtener el genero por nombre");
+			}
+			
+			
+		} catch (SQLException ex) {
+			throw new DBException(DBException.ERROR_12, "No fue posible obtener el genero por nombre. Error: " + ex.getMessage(), ex);
+		}
+		
+		cerrarConexion();
+		return genero;
+	}
+	
+	private Genero getGeneroPorID(int id) throws DBException {
+		conectar();
+		
+		Genero genero;
+		
+		String query = "SELECT id_genero, genero FROM generos WHERE id_genero = ?";
+		
+		
+		PreparedStatement stm = null;
+		ResultSet rset = null;
+		
+		try {
+			stm = conn.prepareStatement(query);
+			stm.setInt(1, id);
+			rset = stm.executeQuery(query);
+			
+			genero = new Genero(rset.getInt(1), rset.getString(2));
+			
+		} catch (SQLException ex) {
+			throw new DBException(DBException.ERROR_11, "No fue posible obtener el genero. Error: " + ex.getMessage(), ex);
+		}
+		
+		cerrarConexion();
+		return genero;
 	}
 
 	@Override
@@ -80,7 +147,16 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 			stm.setString(1, pelicula.getTitulo());
 			stm.setString(2, pelicula.getUrl());
 			stm.setString(3, pelicula.getImg());
-			stm.setString(4, pelicula.getGeneros());
+			
+			List<String> generos = new ArrayList<String>();
+			
+			for(Genero g: pelicula.getGeneros()) {
+				generos.add(g.getGenero());
+			}
+			
+			String generosCadena = String.join(", ", generos);
+			
+			stm.setString(4, generosCadena);
 			
 			int rowsAffected = stm.executeUpdate();
 			
@@ -114,7 +190,16 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 			rset = stm.executeQuery(query);
 			
 			while(rset.next()) {
-				peliculas.add(new Pelicula(rset.getInt(1), rset.getString(2), rset.getString(3), rset.getString(4), rset.getString(5)));
+				List<Genero> generos = new ArrayList<Genero>();
+				
+				String[] generosIDs = rset.getString(5).split(", ");
+
+				
+				for(String gid: generosIDs) {
+					generos.add(getGeneroPorNombre(gid));
+				}
+				
+				peliculas.add(new Pelicula(rset.getInt(1), rset.getString(2), rset.getString(3), rset.getString(4), generos));
 			}
 		} catch (SQLException ex) {
 			throw new DBException(DBException.ERROR_5, "No fue posible descargar las peliculas. Error: " + ex.getMessage(), ex);
@@ -141,7 +226,16 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 			rset = stm.executeQuery(query);
 			
 			while(rset.next()) {
-				peliculas.add(new Pelicula(rset.getInt(1), rset.getString(2), rset.getString(3), rset.getString(4), rset.getString(5)));
+				List<Genero> generos = new ArrayList<Genero>();
+				
+				String[] generosIDs = rset.getString(5).split(", ");
+
+				
+				for(String gid: generosIDs) {
+					generos.add(getGeneroPorID(Integer.valueOf(gid)));
+				}
+				
+				peliculas.add(new Pelicula(rset.getInt(1), rset.getString(2), rset.getString(3), rset.getString(4), generos));
 			}
 		} catch (SQLException ex) {
 			throw new DBException(DBException.ERROR_6, "No fue posible descargar las peliculas. Error: " + ex.getMessage(), ex);
@@ -173,7 +267,15 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 						"No pude encontrar al alumno con codigo: " + codigo);
 			}
 			
-			Pelicula pelicula = new Pelicula(rset.getInt(1), rset.getString(2), rset.getString(3), rset.getString(4), rset.getString(5));
+			List<Genero> generos = new ArrayList<Genero>();
+			
+			String[] generosIDs = rset.getString(5).split(", ");
+
+			for(String gid: generosIDs) {
+				generos.add(getGeneroPorNombre(gid));
+			}
+			
+			Pelicula pelicula = new Pelicula(rset.getInt(1), rset.getString(2), rset.getString(3), rset.getString(4), generos);
 			cerrarConexion();
 			return pelicula;
 			
@@ -245,6 +347,32 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 		
 		cerrarConexion();
 		
+	}
+
+	@Override
+	public List<String> getGeneros() throws DBException {
+		conectar();
+		
+		List<String> generos = new ArrayList<String>();
+		
+		String query = "SELECT id_genero, genero FROM generos";
+		
+		Statement stm = null;
+		ResultSet rset = null;
+		
+		try {
+			stm = conn.createStatement();
+			rset = stm.executeQuery(query);
+			
+			while(rset.next()) {
+				generos.add(rset.getString(2));
+			}
+		} catch (SQLException ex) {
+			throw new DBException(DBException.ERROR_10, "No fue posible descargar las peliculas. Error: " + ex.getMessage(), ex);
+		}
+		
+		cerrarConexion();
+		return generos;
 	}
 
 

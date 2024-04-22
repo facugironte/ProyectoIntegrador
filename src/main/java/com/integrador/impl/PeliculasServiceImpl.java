@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.integrador.exception.DBException;
+import com.integrador.model.Genero;
 import com.integrador.model.Pelicula;
 import com.integrador.repository.PeliculasRepository;
 import com.integrador.service.PeliculasService;
@@ -56,6 +57,16 @@ public class PeliculasServiceImpl implements PeliculasService {
 		peliculasRepository.modificarPeliculaPorCodigo(codigo, titulo, url_sitio, url_img, generos);
 		
 		return peliculasRepository.getPeliculasPorCodigo(codigo);
+	}
+
+	@Override
+	public List<String> getGeneros() throws DBException {
+		return peliculasRepository.getGeneros();
+	}
+
+	@Override
+	public Genero getGeneroPorNombre(String g) throws DBException {
+		return peliculasRepository.getGeneroPorNombre(g);
 	}
 
 }
