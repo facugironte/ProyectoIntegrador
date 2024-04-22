@@ -318,8 +318,7 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 	}
 
 	@Override
-	public void modificarPeliculaPorCodigo(Integer codigo, String titulo, String url_sitio, String url_img,
-			String generos) throws DBException {
+	public void modificarPeliculaPorCodigo(Integer codigo, String titulo, String url_sitio, String url_img, List<Genero> generos) throws DBException {
 		conectar();
 		
 		String query = "UPDATE peliculas set titulo = ?, url_sitio = ?, url_img = ?, generos = ? WHERE codigo = ?";
@@ -331,7 +330,14 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 			stm.setString(1, titulo);
 			stm.setString(2, url_sitio);
 			stm.setString(3, url_img);
-			stm.setString(4, generos);
+
+			List<String> generosStrings = new ArrayList<>();
+
+			for(Genero g: generos) {
+				generosStrings.add(g.getGenero());
+			}
+
+			stm.setString(4, String.join(", ", generosStrings));
 			stm.setInt(5, codigo);
 			
 			int rowsAffected = stm.executeUpdate();

@@ -24,7 +24,7 @@ public interface PeliculasService {
 	public void eliminarPeliculaPorCodigo(Integer codigo) throws DBException;
 
 	public Pelicula modificarPeliculaPorCodigo(Integer codigo, String titulo, String url_sitio, String url_img,
-			String generos) throws DBException;
+			List<Genero> generos) throws DBException;
 
 	public List<String> getGeneros() throws DBException;
 

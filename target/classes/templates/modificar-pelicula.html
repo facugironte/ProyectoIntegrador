@@ -40,8 +40,13 @@
 		<input type="text" id="url_img" name ="url_img" th:value="${pelicula.img}"><br>
 		
 		<label for = "generos">Generos: </label>
-		<input type="text" id="generos" name ="generos" th:value="${pelicula.generosCadena}"><br>
-		
+
+		<select name="generos" id="generos" multiple>
+			<th:block th:each="genero: ${generos}">
+				<option th:value="${genero}" th:text="${genero}" th:selected="${pelicula.generosCadena.contains(genero)}"></option>
+			</th:block>
+		</select>
+
 		<input type="hidden" id="codigo" name ="codigo" th:value="${pelicula.codigo}">
 		
 		<button type="submit">Guardar cambios</button>

@@ -107,14 +107,24 @@ public class PeliculasController {
 		Pelicula pelicula = peliculasService.getPeliculaPorCodigo(Integer.valueOf(codigo));
 		
 		model.addAttribute("pelicula", pelicula);
+
+		List<String> generos = peliculasService.getGeneros();
+
+		model.addAttribute("generos", generos);
 		
 		return "modificar-pelicula";
 	}
 	
 	@PostMapping("/save-modificar-pelicula")
-	public String modificarPelicula(@RequestParam String codigo,@RequestParam String titulo, @RequestParam String url_sitio, @RequestParam String url_img, @RequestParam String generos, Model model) throws DBException {
-		
-		Pelicula pelicula = peliculasService.modificarPeliculaPorCodigo(Integer.valueOf(codigo), titulo, url_sitio, url_img, generos);
+	public String modificarPelicula(@RequestParam String codigo,@RequestParam String titulo, @RequestParam String url_sitio, @RequestParam String url_img, @RequestParam String[] generos, Model model) throws DBException {
+
+		List<Genero> generosObj = new ArrayList<>();
+
+		for(String g: generos) {
+			generosObj.add(peliculasService.getGeneroPorNombre(g));
+		}
+
+		Pelicula pelicula = peliculasService.modificarPeliculaPorCodigo(Integer.valueOf(codigo), titulo, url_sitio, url_img, generosObj);
 		
 		model.addAttribute("pelicula", pelicula);
 		

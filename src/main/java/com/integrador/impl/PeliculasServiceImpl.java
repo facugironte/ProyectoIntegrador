@@ -52,7 +52,7 @@ public class PeliculasServiceImpl implements PeliculasService {
 
 	@Override
 	public Pelicula modificarPeliculaPorCodigo(Integer codigo, String titulo, String url_sitio, String url_img,
-			String generos) throws DBException {
+			List<Genero> generos) throws DBException {
 		
 		peliculasRepository.modificarPeliculaPorCodigo(codigo, titulo, url_sitio, url_img, generos);
 		
