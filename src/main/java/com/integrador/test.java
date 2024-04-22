@@ -13,12 +13,13 @@ public class test {
 		PeliculasRepository pr = new PeliculasRepositoryImpl();
 		
 		/*List<Pelicula> pelis =  pr.getAll();
-		
-		for(Pelicula p: pelis) {
-		}*/
-		Pelicula pel = pr.getPeliculasPorCodigo(16);
-		System.out.println(pel.getGeneros());
+		 */
 
+		List<Pelicula> pelis = pr.getPeliculasPorGenero("Drama");
+
+		for(Pelicula p: pelis) {
+			System.out.println(p.getGeneros());
+		}
 	}
 
 }

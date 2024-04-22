@@ -232,7 +232,7 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 
 				
 				for(String gid: generosIDs) {
-					generos.add(getGeneroPorID(Integer.valueOf(gid)));
+					generos.add(getGeneroPorNombre(gid));
 				}
 				
 				peliculas.add(new Pelicula(rset.getInt(1), rset.getString(2), rset.getString(3), rset.getString(4), generos));
