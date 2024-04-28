@@ -1,4 +1,4 @@
-package com.integrador.impl;
+package com.integrador.repository.impl;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -28,8 +28,7 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 		} catch (SQLException sqlExcex) {
 			throw new DBException(DBException.ERROR_1, "No se pudo conectar con la DB", sqlExcex);
 		}
-	}
-	
+	}	
 	private void cerrarConexion() throws DBException {
 		try {
 			conn.close();
@@ -39,7 +38,7 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 		}
 	}
 	
-	
+	//Unico metodo modificado con nueva tabla
 	@Override
 	public List<Pelicula> getAll() throws DBException {
 		
@@ -47,7 +46,7 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 		
 		List<Pelicula> peliculas = new ArrayList<Pelicula>();
 		
-		String query = "SELECT codigo, titulo, url_sitio, url_img, generos FROM Peliculas";
+		String query = "SELECT codigo, titulo, url_sitio, url_img FROM peliculas";
 		
 		Statement stm = null;
 		ResultSet rset = null;
@@ -58,15 +57,14 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 			
 			while(rset.next()) {
 				
-				List<Genero> generos = new ArrayList<Genero>();
+				int codigo = rset.getInt(1);
+				String titulo = rset.getString(2);
+				String url_sitio = rset.getString(3);
+				String url_img = rset.getString(4);
 				
-				String[] generosIDs = rset.getString(5).split(", ");
+				List<Genero> generos = getGenerosPeliculaPorCodigo(codigo);
 				
-				for(String gid: generosIDs) {
-					generos.add(getGeneroPorNombre(gid));
-				}
-				
-				peliculas.add(new Pelicula(rset.getInt(1), rset.getString(2), rset.getString(3), rset.getString(4), generos));
+				peliculas.add(new Pelicula(codigo, titulo, url_sitio, url_img, generos));
 			}
 		} catch (SQLException ex) {
 			throw new DBException(DBException.ERROR_3, "No fue posible descargar las peliculas. Error: " + ex.getMessage(), ex);
@@ -75,6 +73,29 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 		cerrarConexion();
 		
 		return peliculas;
+	}
+	
+	private List<Genero> getGenerosPeliculaPorCodigo(int codigo) throws DBException{
+		String queryGen = "SELECT g.id_genero, g.genero "
+				+ "FROM generos g "
+				+ "INNER JOIN pelicula_genero pg ON g.id_genero = pg.id_genero "
+				+ "WHERE pg.codigo_pelicula = ?";
+		List<Genero> generos = new ArrayList<Genero>();
+
+		try {
+			PreparedStatement stmGen = conn.prepareStatement(queryGen);
+			stmGen.setInt(1, codigo);
+			ResultSet rsetGen = stmGen.executeQuery();
+			
+			
+			while(rsetGen.next()) {
+				generos.add(new Genero(rsetGen.getInt(1), rsetGen.getString(2)));
+			}
+		} catch (SQLException ex) {
+			throw new DBException(DBException.ERROR_12, "No fue posible obtener los generos de la pelicula. Error: " + ex.getMessage(), ex);
+		}
+		
+		return generos;
 	}
 
 	public Genero getGeneroPorNombre(String nombre) throws DBException {
@@ -101,33 +122,7 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 			
 			
 		} catch (SQLException ex) {
-			throw new DBException(DBException.ERROR_12, "No fue posible obtener el genero por nombre. Error: " + ex.getMessage(), ex);
-		}
-		
-		cerrarConexion();
-		return genero;
-	}
-	
-	private Genero getGeneroPorID(int id) throws DBException {
-		conectar();
-		
-		Genero genero;
-		
-		String query = "SELECT id_genero, genero FROM generos WHERE id_genero = ?";
-		
-		
-		PreparedStatement stm = null;
-		ResultSet rset = null;
-		
-		try {
-			stm = conn.prepareStatement(query);
-			stm.setInt(1, id);
-			rset = stm.executeQuery(query);
-			
-			genero = new Genero(rset.getInt(1), rset.getString(2));
-			
-		} catch (SQLException ex) {
-			throw new DBException(DBException.ERROR_11, "No fue posible obtener el genero. Error: " + ex.getMessage(), ex);
+			throw new DBException(DBException.ERROR_11, "No fue posible obtener el genero por nombre. Error: " + ex.getMessage(), ex);
 		}
 		
 		cerrarConexion();
@@ -286,7 +281,7 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 	}
 
 	@Override
-	public void eliminarPeliculaPorCodigo(Integer codigo) throws DBException {
+	public void deletePeliculaPorCodigo(Integer codigo) throws DBException {
 		conectar();
 		
 		String query = "delete from peliculas where codigo = ?";

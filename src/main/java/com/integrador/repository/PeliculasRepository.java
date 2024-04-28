@@ -21,7 +21,7 @@ public interface PeliculasRepository {
 
 	public Pelicula getPeliculasPorCodigo(Integer codigo) throws DBException;
 
-	public void eliminarPeliculaPorCodigo(Integer codigo) throws DBException;
+	public void deletePeliculaPorCodigo(Integer codigo) throws DBException;
 
 	public void modificarPeliculaPorCodigo(Integer codigo, String titulo, String url_sitio, String url_img, List<Genero> generos) throws DBException;
 

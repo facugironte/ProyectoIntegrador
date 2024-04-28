@@ -11,8 +11,8 @@ public class DBException extends Exception{
 	public static final int ERROR_8 = 8; //Eliminar pelicula
 	public static final int ERROR_9 = 9; //Modificar pelicula;
 	public static final int ERROR_10 = 10; //Obtener generos;
-	public static final int ERROR_11 = 11; //Obtener genero por id;
-	public static final int ERROR_12 = 12; //Obtener genero por nombre;
+	public static final int ERROR_11 = 11; //Obtener genero por nombre;
+	public static final int ERROR_12 = 12; //Obtener generos de una pelicula por codigo;
 	
 
 	private int error;
@@ -55,9 +55,9 @@ public class DBException extends Exception{
 		case ERROR_10:
 			return "Se produjo un error obteniendo los generos. Error: " + super.getMessage();
 		case ERROR_11:
-			return "Se produjo un error obteniendo el genero por id. Error: " + super.getMessage();
-		case ERROR_12:
 			return "Se produjo un error obteniendo el genero por nombre. Error: " + super.getMessage();
+		case ERROR_12:
+			return "Se produjo un error obteniendo generos de una pelicula por codigo de pelicula. Error: " + super.getMessage();
 		default:
 			return super.getMessage();
 		}

@@ -1,4 +1,4 @@
-package com.integrador.impl;
+package com.integrador.service.impl;
 
 import java.util.List;
 
@@ -46,7 +46,7 @@ public class PeliculasServiceImpl implements PeliculasService {
 
 	@Override
 	public void eliminarPeliculaPorCodigo(Integer codigo) throws DBException {
-		peliculasRepository.eliminarPeliculaPorCodigo(codigo);
+		peliculasRepository.deletePeliculaPorCodigo(codigo);
 		
 	}
 
