@@ -1,3 +1,15 @@
+.git/
+.mvn/
+.settings/
+bin/
+target/
+.classpath
+.project
+HELP.md
+mvnw
+mvnw.cmd
+
+
 # Compiled class file
 *.class
 
