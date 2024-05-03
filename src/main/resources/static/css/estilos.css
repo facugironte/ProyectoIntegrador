@@ -16,8 +16,11 @@ body {
 	display:grid;
 	grid-template-columns: repeat(auto-fill, 200px); /* Columnas flexibles */
   	grid-gap: 5px;
+  	
+  	margin-top: 10px;
 	
 }
+
 
 .contenedor-imagen {
 	width: 200px;
@@ -29,6 +32,11 @@ body {
 	height: auto;
 	
 }
+
+.no-encontrada{
+	height:300px;
+}
+
 
 .informacion-pelicula {
     position: absolute;

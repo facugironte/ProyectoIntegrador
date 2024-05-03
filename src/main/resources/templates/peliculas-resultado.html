@@ -27,7 +27,7 @@
 	</form>
 	
 	
-	<div>
+	<div class="contenedor-peliculas">
 		<div th:each="pelicula : ${peliculas}" class="contenedor-imagen">
 			<img th:src="@{/img/__${pelicula.img}__}" alt="Imagen de la Película">
 		    <div class="informacion-pelicula">

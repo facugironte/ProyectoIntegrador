@@ -15,16 +15,15 @@
     </nav>
     
 	<h1>Pelicula encontrada por código</h1>
-	<div class = "peliculas">
-		<div class="contenedor-imagen">
-		    <img th:src="@{/img/__${pelicula.img}__}" alt="Imagen de la Película">
-		    <div class="informacion-pelicula">
-		        <h2 th:text="${pelicula.titulo}"></h2>
-		        <p>Código: <span th:text="${pelicula.codigo}"></span></p>
-		        <p>Género: <span th:text="${pelicula.generosCadena}"></span></p>
-		        <a th:href ="'https://' + ${pelicula.url}">Ver pelicula</a>
-		    </div>
-		</div>
+
+	<div class="contenedor-imagen">
+	    <img th:src="@{/img/__${pelicula.img}__}" alt="Imagen de la Película" id="">
+	    <div class="informacion-pelicula">
+	        <h2 th:text="${pelicula.titulo}"></h2>
+	        <p>Código: <span th:text="${pelicula.codigo}"></span></p>
+	        <p>Género: <span th:text="${pelicula.generosCadena}"></span></p>
+	        <a th:href ="'https://' + ${pelicula.url}">Ver pelicula</a>
+	    </div>
 	</div>
 	
 	<form action ="/peliculas/modificar-pelicula" method = "get">
@@ -37,6 +36,6 @@
 		<button type="submit">Eliminar pelicula</button>
 	</form>
 	
-
+	<script src="no_encontrada.js"></script>
 </body>
 </html>
