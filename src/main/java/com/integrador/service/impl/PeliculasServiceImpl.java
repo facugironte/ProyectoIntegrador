@@ -41,7 +41,7 @@ public class PeliculasServiceImpl implements PeliculasService {
 
 	@Override
 	public Pelicula getPeliculaPorCodigo(Integer codigo) throws DBException {
-		return peliculasRepository.getPeliculasPorCodigo(codigo);
+		return peliculasRepository.getPeliculaPorCodigo(codigo);
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class PeliculasServiceImpl implements PeliculasService {
 		
 		peliculasRepository.modificarPeliculaPorCodigo(codigo, titulo, url_sitio, url_img, generos);
 		
-		return peliculasRepository.getPeliculasPorCodigo(codigo);
+		return peliculasRepository.getPeliculaPorCodigo(codigo);
 	}
 
 	@Override

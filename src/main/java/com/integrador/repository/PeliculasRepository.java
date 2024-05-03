@@ -19,7 +19,7 @@ public interface PeliculasRepository {
 
 	public List<Pelicula> getPeliculasPorGenero(String genero) throws DBException;
 
-	public Pelicula getPeliculasPorCodigo(Integer codigo) throws DBException;
+	public Pelicula getPeliculaPorCodigo(Integer codigo) throws DBException;
 
 	public void deletePeliculaPorCodigo(Integer codigo) throws DBException;
 

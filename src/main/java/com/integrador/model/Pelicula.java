@@ -86,6 +86,7 @@ public class Pelicula {
 	public void setGenerosCadena(String generosCadena) {
 		this.generosCadena = generosCadena;
 	}
+
 	
 	
 	

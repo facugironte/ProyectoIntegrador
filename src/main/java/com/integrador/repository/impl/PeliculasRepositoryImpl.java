@@ -38,7 +38,7 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 		}
 	}
 	
-	//Unico metodo modificado con nueva tabla
+	//Modificado
 	@Override
 	public List<Pelicula> getAll() throws DBException {
 		
@@ -128,12 +128,13 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 		cerrarConexion();
 		return genero;
 	}
-
+	
+	//Modificado
 	@Override
 	public Pelicula save(Pelicula pelicula) throws DBException {
 		conectar();
 
-		String query = "INSERT INTO peliculas (titulo, url_sitio, url_img, generos) VALUES (?,?,?,?)";
+		String query = "INSERT INTO peliculas (titulo, url_sitio, url_img) VALUES (?,?,?)";
 		PreparedStatement stm = null;
 		
 		try {
@@ -143,15 +144,6 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 			stm.setString(2, pelicula.getUrl());
 			stm.setString(3, pelicula.getImg());
 			
-			List<String> generos = new ArrayList<String>();
-			
-			for(Genero g: pelicula.getGeneros()) {
-				generos.add(g.getGenero());
-			}
-			
-			String generosCadena = String.join(", ", generos);
-			
-			stm.setString(4, generosCadena);
 			
 			int rowsAffected = stm.executeUpdate();
 			
@@ -164,17 +156,77 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 			throw new DBException(DBException.ERROR_4, "No fue posible ingresar la pelicula", ex);
 		}
 		
+		savePeliculasGenero(getCodigoPeliculaPorTitulo(pelicula.getTitulo()),pelicula.getGeneros());
+		
 		cerrarConexion();
 		return null;
 	}
 
+	private int getCodigoPeliculaPorTitulo(String titulo) throws DBException {
+
+		int codigo = -1;
+		
+		String query = "SELECT codigo FROM peliculas WHERE titulo = ?";
+		
+		
+		PreparedStatement stm = null;
+		ResultSet rset = null;
+		
+		try {
+			stm = conn.prepareStatement(query);
+			stm.setString(1, titulo);
+			rset = stm.executeQuery();
+			
+			if(rset.next()) {
+				codigo = rset.getInt(1);
+			} else {
+				System.out.println("No fue posible obtener la pelicula por titulo");
+			}
+			
+			
+		} catch (SQLException ex) {
+			throw new DBException(DBException.ERROR_14, "No fue posible obtener la pelicula por titulo. Error: " + ex.getMessage(), ex);
+		}
+		System.out.println(codigo);
+		return codigo;
+	}
+	
+	private void savePeliculasGenero(int codigo_pelicula, List<Genero> generos) throws DBException {
+
+		String query = "INSERT INTO pelicula_genero (codigo_pelicula, id_genero) VALUES (?,?)";
+		PreparedStatement stm = null;
+		
+		for(Genero g: generos) {
+			try {
+				stm = conn.prepareStatement(query);
+				stm.setInt(1, codigo_pelicula);
+				stm.setInt(2, g.getId());
+				
+				int rowsAffected = stm.executeUpdate();
+				
+				if (rowsAffected == 0) {
+					throw new DBException(DBException.ERROR_13, "El genero de la pelicula no fue ingresado");
+				}
+				System.out.println("Genero ingresado correctamente.");
+				
+	
+				
+				
+			} catch(SQLException ex) {
+				throw new DBException(DBException.ERROR_13, "El genero de la pelicula no fue ingresado", ex);
+			}
+		}
+
+	}
+	
+	//Modificado
 	@Override
 	public List<Pelicula> getPeliculasPorTitulo(String titulo) throws DBException {
 		conectar();
 		
 		List<Pelicula> peliculas = new ArrayList<Pelicula>();
 		
-		String query = "SELECT codigo, titulo, url_sitio, url_img, generos FROM peliculas WHERE LOWER(titulo) LIKE '%" + titulo.toLowerCase() + "%'";
+		String query = "SELECT codigo, titulo, url_sitio, url_img FROM peliculas WHERE LOWER(titulo) LIKE '%" + titulo.toLowerCase() + "%'";
 		
 		
 		Statement stm = null;
@@ -185,14 +237,8 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 			rset = stm.executeQuery(query);
 			
 			while(rset.next()) {
-				List<Genero> generos = new ArrayList<Genero>();
 				
-				String[] generosIDs = rset.getString(5).split(", ");
-
-				
-				for(String gid: generosIDs) {
-					generos.add(getGeneroPorNombre(gid));
-				}
+				List<Genero> generos = getGenerosPeliculaPorCodigo(rset.getInt(1));
 				
 				peliculas.add(new Pelicula(rset.getInt(1), rset.getString(2), rset.getString(3), rset.getString(4), generos));
 			}
@@ -203,14 +249,19 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 		cerrarConexion();
 		return peliculas;
 	}
-
+	
+	//Modificado
 	@Override
 	public List<Pelicula> getPeliculasPorGenero(String genero) throws DBException {
 		conectar();
 		
 		List<Pelicula> peliculas = new ArrayList<Pelicula>();
 		
-		String query = "SELECT codigo, titulo, url_sitio, url_img, generos FROM peliculas WHERE LOWER(generos) LIKE '%" + genero.toLowerCase() + "%'";
+		String query = "SELECT DISTINCT p.codigo, p.titulo, p.url_sitio, p.url_img "
+					+ "FROM peliculas p "
+					+ "JOIN pelicula_genero pg ON p.codigo = pg.codigo_pelicula "
+					+ "JOIN generos g ON pg.id_genero = g.id_genero "
+					+ "WHERE LOWER(g.genero) LIKE '%" + genero.toLowerCase() + "%'";
 		
 		
 		Statement stm = null;
@@ -221,14 +272,7 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 			rset = stm.executeQuery(query);
 			
 			while(rset.next()) {
-				List<Genero> generos = new ArrayList<Genero>();
-				
-				String[] generosIDs = rset.getString(5).split(", ");
-
-				
-				for(String gid: generosIDs) {
-					generos.add(getGeneroPorNombre(gid));
-				}
+				List<Genero> generos = getGenerosPeliculaPorCodigo(rset.getInt(1));
 				
 				peliculas.add(new Pelicula(rset.getInt(1), rset.getString(2), rset.getString(3), rset.getString(4), generos));
 			}
@@ -239,12 +283,15 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 		cerrarConexion();
 		return peliculas;
 	}
-
+	
+	//Modificado
 	@Override
-	public Pelicula getPeliculasPorCodigo(Integer codigo) throws DBException {
+	public Pelicula getPeliculaPorCodigo(Integer codigo) throws DBException {
 		conectar();
 		
-		String query = "SELECT codigo, titulo, url_sitio, url_img, generos FROM peliculas WHERE codigo = ?";
+		Pelicula pelicula = null;
+		
+		String query = "SELECT codigo, titulo, url_sitio, url_img FROM peliculas WHERE codigo = ?";
 		
 		PreparedStatement stm = null;
 		ResultSet rset = null;
@@ -262,27 +309,24 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 						"No pude encontrar al alumno con codigo: " + codigo);
 			}
 			
-			List<Genero> generos = new ArrayList<Genero>();
+			List<Genero> generos = getGenerosPeliculaPorCodigo(rset.getInt(1));
 			
-			String[] generosIDs = rset.getString(5).split(", ");
-
-			for(String gid: generosIDs) {
-				generos.add(getGeneroPorNombre(gid));
-			}
-			
-			Pelicula pelicula = new Pelicula(rset.getInt(1), rset.getString(2), rset.getString(3), rset.getString(4), generos);
-			cerrarConexion();
-			return pelicula;
+			pelicula = new Pelicula(rset.getInt(1), rset.getString(2), rset.getString(3), rset.getString(4), generos);
 			
 		} catch (SQLException ex) {
 			throw new DBException(DBException.ERROR_7, "No fue posible descargar la pelicula. Error: " + ex.getMessage(), ex);
 		}
+		cerrarConexion();
 		
+		return pelicula;
 	}
-
+	
+	//Modificado
 	@Override
 	public void deletePeliculaPorCodigo(Integer codigo) throws DBException {
 		conectar();
+		
+		deleteGenerosPorCodigoPelicula(codigo);
 		
 		String query = "delete from peliculas where codigo = ?";
 		PreparedStatement stm = null;
@@ -312,11 +356,41 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 		
 	}
 
+	private void deleteGenerosPorCodigoPelicula(Integer codigo) throws DBException {
+		
+		String query = "delete from pelicula_genero where codigo_pelicula = ?";
+		PreparedStatement stm = null;
+		try {
+			stm = conn.prepareStatement(query);
+			stm.setInt(1, codigo);
+			int rowsAffected = stm.executeUpdate();
+			
+			if (rowsAffected == 0) {
+				System.out.println("La pelicula " + codigo + " no tiene generos.");
+			}
+			System.out.println("Generos eliminados correctamente");
+			
+		} catch (SQLException exec) {
+			throw new DBException(DBException.ERROR_15,
+					"No fue posible eliminar la pelicula. Error: " + exec.getMessage(), exec);
+
+		} finally {
+			try {
+				stm.close();
+			} catch (SQLException exex) {
+				System.err.println("No se pudo cerrar el statement. Error: " + exex.getMessage());
+			}
+		}
+		
+	}
 	@Override
 	public void modificarPeliculaPorCodigo(Integer codigo, String titulo, String url_sitio, String url_img, List<Genero> generos) throws DBException {
 		conectar();
 		
-		String query = "UPDATE peliculas set titulo = ?, url_sitio = ?, url_img = ?, generos = ? WHERE codigo = ?";
+		deleteGenerosPorCodigoPelicula(codigo);
+		savePeliculasGenero(codigo, generos);
+		
+		String query = "UPDATE peliculas set titulo = ?, url_sitio = ?, url_img = ? WHERE codigo = ?";
 		
 		PreparedStatement stm = null;
 		
@@ -326,14 +400,8 @@ public class PeliculasRepositoryImpl implements PeliculasRepository {
 			stm.setString(2, url_sitio);
 			stm.setString(3, url_img);
 
-			List<String> generosStrings = new ArrayList<>();
 
-			for(Genero g: generos) {
-				generosStrings.add(g.getGenero());
-			}
-
-			stm.setString(4, String.join(", ", generosStrings));
-			stm.setInt(5, codigo);
+			stm.setInt(4, codigo);
 			
 			int rowsAffected = stm.executeUpdate();
 			

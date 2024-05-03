@@ -12,10 +12,16 @@ body {
 	font-family: verdana; 
 }
 
+.contenedor-peliculas{
+	display:grid;
+	grid-template-columns: repeat(auto-fill, 200px); /* Columnas flexibles */
+  	grid-gap: 5px;
+	
+}
+
 .contenedor-imagen {
 	width: 200px;
     position: relative;
-    display:inline-block;
 }
 
 .contenedor-imagen img {
