@@ -6,8 +6,8 @@
 }
 
 body {
-	margin-left: 50px;
-	margin-right:50px;
+	margin-left: 10%;
+	margin-right: 10%;
 	background-color: #4587A3;
 	font-family: verdana; 
 }
@@ -66,12 +66,19 @@ a {
 
 /* barra de navegación */
 .navbar {
-    background-color: #333; 
+    background-color: #333;
+    margin: 2rem 0;
+    /*padding: 2rem 1rem;*/
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .navbar-nav {
     list-style-type: none; 
     display: flex; 
+    align-items: center;
+    gap: 3rem;
 }
 
 .nav-item {
